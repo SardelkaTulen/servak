@@ -140,3 +140,4 @@ C:\Users\User\Desktop\MyServer\obj\Debug\net9.0\refint\MyServer.dll
 C:\Users\User\Desktop\MyServer\obj\Debug\net9.0\MyServer.pdb
 C:\Users\User\Desktop\MyServer\obj\Debug\net9.0\MyServer.genruntimeconfig.cache
 C:\Users\User\Desktop\MyServer\obj\Debug\net9.0\ref\MyServer.dll
+C:\Users\User\Desktop\MyServer\obj\Debug\net9.0\MyServer.sourcelink.json
