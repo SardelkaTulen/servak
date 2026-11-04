@@ -14,4 +14,10 @@ public class UserAccount
     public string PasswordHash { get; set; } = "";
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+
+    public string? SessionTokenHash { get; set; }
+
+    public DateTime? SessionExpiresAt { get; set; }
+
 }

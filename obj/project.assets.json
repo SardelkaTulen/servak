@@ -362,6 +362,20 @@
           }
         }
       },
+      "Microsoft.Data.Sqlite/9.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Data.Sqlite.Core": "9.0.0",
+          "SQLitePCLRaw.bundle_e_sqlite3": "2.1.10",
+          "SQLitePCLRaw.core": "2.1.10"
+        },
+        "compile": {
+          "lib/netstandard2.0/_._": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/_._": {}
+        }
+      },
       "Microsoft.Data.Sqlite.Core/9.0.0": {
         "type": "package",
         "dependencies": {
@@ -2083,6 +2097,20 @@
         "microsoft.codeanalysis.workspaces.msbuild.nuspec"
       ]
     },
+    "Microsoft.Data.Sqlite/9.0.0": {
+      "sha512": "lw6wthgXGx3r/U775k1UkUAWIn0kAT0wj4ZRq0WlhPx4WAOiBsIjgDKgWkXcNTGT0KfHiClkM+tyPVFDvxeObw==",
+      "type": "package",
+      "path": "microsoft.data.sqlite/9.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "PACKAGE.md",
+        "lib/netstandard2.0/_._",
+        "microsoft.data.sqlite.9.0.0.nupkg.sha512",
+        "microsoft.data.sqlite.nuspec"
+      ]
+    },
     "Microsoft.Data.Sqlite.Core/9.0.0": {
       "sha512": "cFfZjFL+tqzGYw9lB31EkV1IWF5xRQNk2k+MQd+Cf86Gl6zTeAoiZIFw5sRB1Z8OxpEC7nu+nTDsLSjieBAPTw==",
       "type": "package",
@@ -3074,6 +3102,7 @@
   },
   "projectFileDependencyGroups": {
     "net9.0": [
+      "Microsoft.Data.Sqlite >= 9.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.0",
       "Microsoft.EntityFrameworkCore.Sqlite >= 9.0.0"
     ]
@@ -3131,6 +3160,10 @@
         "framework": "net9.0",
         "targetAlias": "net9.0",
         "dependencies": {
+          "Microsoft.Data.Sqlite": {
+            "target": "Package",
+            "version": "[9.0.0, )"
+          },
           "Microsoft.EntityFrameworkCore.Design": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
             "suppressParent": "All",

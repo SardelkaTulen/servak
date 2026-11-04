@@ -17,10 +17,52 @@ builder.Services.AddScoped<IPasswordHasher<UserAccount>,
 var app = builder.Build();
 
 // Создаём таблицы базы данных, если их ещё нет.
+// Создаём базу и проверяем необходимые столбцы.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
     await db.Database.EnsureCreatedAsync();
+
+    var connection = db.Database.GetDbConnection();
+    await connection.OpenAsync();
+
+    try
+    {
+        var columns = new HashSet<string>();
+
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "PRAGMA table_info('Users');";
+
+            using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                columns.Add(reader.GetString(1));
+            }
+        }
+
+        if (!columns.Contains("SessionTokenHash"))
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText =
+                "ALTER TABLE Users ADD COLUMN SessionTokenHash TEXT NULL;";
+            await command.ExecuteNonQueryAsync();
+        }
+
+        if (!columns.Contains("SessionExpiresAt"))
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText =
+                "ALTER TABLE Users ADD COLUMN SessionExpiresAt TEXT NULL;";
+            await command.ExecuteNonQueryAsync();
+        }
+    }
+    finally
+    {
+        await connection.CloseAsync();
+    }
 }
 
 app.MapGet("/", () => "MyServer is running!");
