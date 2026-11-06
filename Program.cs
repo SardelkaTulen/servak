@@ -1,4 +1,5 @@
-
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyServer.Data;
@@ -184,10 +185,90 @@ app.MapPost("/api/auth/login", async (
             statusCode: StatusCodes.Status401Unauthorized);
     }
 
+    // Создаём случайный токен.
+    var tokenBytes = RandomNumberGenerator.GetBytes(32);
+    var token = Convert.ToBase64String(tokenBytes);
+
+    // Сохраняем в базе хеш токена, а не сам токен.
+    var tokenHash = Convert.ToHexString(
+        SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+
+    user.SessionTokenHash = tokenHash;
+
+    // Срок действия сессии — 30 дней.
+    user.SessionExpiresAt = DateTime.UtcNow.AddDays(30);
+
+    await db.SaveChangesAsync();
+
     return Results.Ok(new
     {
         message = "Вход выполнен!",
+        username = user.Username,
+        token = token
+    });
+});
+
+// ПРОВЕРКА СОХРАНЁННОЙ СЕССИИ
+app.MapPost("/api/auth/validate", async (
+    TokenRequest request,
+    AppDbContext db) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Token))
+    {
+        return Results.Unauthorized();
+    }
+
+    var tokenHash = Convert.ToHexString(
+        SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Token)));
+
+    var user = await db.Users.SingleOrDefaultAsync(
+        item => item.SessionTokenHash == tokenHash);
+
+    if (user is null ||
+        user.SessionExpiresAt == null ||
+        user.SessionExpiresAt <= DateTime.UtcNow)
+    {
+        return Results.Unauthorized();
+    }
+
+    return Results.Ok(new
+    {
         username = user.Username
+    });
+});
+
+// ВЫХОД ИЗ АККАУНТА
+app.MapPost("/api/auth/logout", async (
+    TokenRequest request,
+    AppDbContext db) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Token))
+    {
+        return Results.BadRequest(new
+        {
+            message = "Токен отсутствует."
+        });
+    }
+
+    var tokenHash = Convert.ToHexString(
+        SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Token)));
+
+    var user = await db.Users.SingleOrDefaultAsync(
+        item => item.SessionTokenHash == tokenHash);
+
+    if (user is not null)
+    {
+        user.SessionTokenHash = null;
+        user.SessionExpiresAt = null;
+
+        await db.SaveChangesAsync();
+    }
+
+    return Results.Ok(new
+    {
+        message = "Выход выполнен."
     });
 });
 
@@ -201,3 +282,5 @@ public record RegisterRequest(
 public record LoginRequest(
     string? Email,
     string? Password);
+
+public record TokenRequest(string? Token);
